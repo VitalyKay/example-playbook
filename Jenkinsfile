@@ -1,15 +1,22 @@
 pipeline {
-  agent any
-  stages {
-    stage('First stage'){
-      steps {
-        echo "I'm runing"  
-      }
+    agent {
+        label 'ansible_docker'
     }
-    stage('Second stage'){
-      steps {
-        echo "And I'm too"
-      }
+    stages {
+        stage('checkout') {
+            steps {
+                git 'https://github.com/vitalykay/example-playbook.git'
+            }
+        }
+        stage('requirements') {
+            steps {
+                sh "ansible-galaxy role install -p roles -r requirements.yml java"
+            }
+        }
+        stage('playbook') {
+            steps {
+                sh "ansible-playbook -i inventory/prod.yml site.yml"
+            }
+        }
     }
-  }
 }
